@@ -1,0 +1,84 @@
+As an AI language model, I don't have access to create visual examples. However, I can provide you with the code snippet for a custom node with PNG image and tooltip, and also a drag and drop example using react-d3-graph library.
+
+Custom Node with PNG Image and Tooltip:
+
+```
+import React from 'react';
+import { NodeProps } from 'react-d3-graph';
+
+const CustomNode = ({ node }: NodeProps) => {
+  return (
+    <g>
+      <image href={node.image} width="50" height="50" x="-25" y="-25" />
+      <circle r="25" fill="rgba(255,255,255,0.8)" />
+      <text fill="#000" fontSize="12px" textAnchor="middle" alignmentBaseline="middle">
+        {node.id}
+      </text>
+      <title>{node.tooltip}</title>
+    </g>
+  );
+};
+
+export default CustomNode;
+```
+
+In the above code snippet, we have created a CustomNode component which takes in a node object as a prop. The node object contains information about the image, tooltip and id of the node. We are rendering an image and a circle element inside a group. We have also added a tooltip using the title element.
+
+Drag and Drop Example:
+
+```
+import React, { useState } from 'react';
+import { Graph } from 'react-d3-graph';
+import CustomNode from './CustomNode';
+
+const data = {
+  nodes: [
+    { id: 'node1', image: '/path/to/image1.png', tooltip: 'Node 1 tooltip' },
+    { id: 'node2', image: '/path/to/image2.png', tooltip: 'Node 2 tooltip' },
+    { id: 'node3', image: '/path/to/image3.png', tooltip: 'Node 3 tooltip' },
+  ],
+  links: [
+    { source: 'node1', target: 'node2' },
+    { source: 'node2', target: 'node3' },
+  ],
+};
+
+const DragAndDropExample = () => {
+  const [graphData, setGraphData] = useState(data);
+
+  const onDropNode = (event, id) => {
+    const { x, y } = event.target.getBoundingClientRect();
+    const position = { x: event.clientX - x, y: event.clientY - y };
+    const node = { id, x: position.x, y: position.y, image: '/path/to/newimage.png', tooltip: 'New node tooltip' };
+    const newNodes = [...graphData.nodes, node];
+    const newLinks = [...graphData.links];
+    setGraphData({ nodes: newNodes, links: newLinks });
+  };
+
+  return (
+    <Graph
+      id="graph-id"
+      data={graphData}
+      nodeTypes={{ customNode: CustomNode }}
+      nodeDragBehavior={true}
+      onDropNode={onDropNode}
+    />
+  );
+};
+
+export default DragAndDropExample;
+```
+
+In the above code snippet, we have created a DragAndDropExample component which renders a Graph component from react-d3-graph library. 
+
+We are passing the data object to the Graph component which contains information about the nodes and links in the graph.
+
+We have also defined a custom node type using the CustomNode component defined earlier.
+
+We have enabled node drag behavior by setting the nodeDragBehavior prop to true.
+
+We have also defined an onDropNode function which gets called when a node is dropped on the graph. Inside this function, we are creating a new node and updating the graph data using the setGraphData function.
+
+We are rendering the Graph component inside the DragAndDropExample component.
+
+Note: Please make necessary changes in the code snippet as per your requirements.
