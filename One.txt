@@ -1,0 +1,324 @@
+To develop custom nodes with png image and display label below, edges with label, tooltip, draggable nodes in d3.js with React hooks using Axios mock API, follow the steps given below:
+
+Step 1: Set up the project
+
+Create a new React app using create-react-app.
+
+```
+npx create-react-app d3-react-app
+```
+
+Install D3.js and Axios
+
+```
+npm install d3 axios
+```
+
+Create a new file called `mockData.js` in the src folder to simulate the back-end API.
+
+```javascript
+const nodeData = [
+  { id: '1', name: 'Node 1', img: 'https://via.placeholder.com/50', x: 100, y: 100 },
+  { id: '2', name: 'Node 2', img: 'https://via.placeholder.com/50', x: 200, y: 200 },
+  { id: '3', name: 'Node 3', img: 'https://via.placeholder.com/50', x: 300, y: 300 },
+  { id: '4', name: 'Node 4', img: 'https://via.placeholder.com/50', x: 400, y: 400 }
+];
+
+const linkData = [
+  { source: '1', target: '2', label: 'Link 1' },
+  { source: '2', target: '3', label: 'Link 2' },
+  { source: '3', target: '4', label: 'Link 3' }
+];
+
+export const getNodeData = () => {
+  return new Promise(resolve => setTimeout(() => resolve(nodeData), 1000));
+};
+
+export const getLinkData = () => {
+  return new Promise(resolve => setTimeout(() => resolve(linkData), 1000));
+};
+```
+
+Step 2: Set up the D3.js visualisation
+
+Import D3.js and Axios.
+
+```javascript
+import * as d3 from 'd3';
+import axios from 'axios';
+```
+
+Create a useEffect hook to run after the component mounts, and select the SVG element using D3.js.
+
+```javascript
+useEffect(() => {
+  const svg = d3.select(svgRef.current);
+  
+  // create nodes and links using mock data from API
+  axios.all([getNodeData(), getLinkData()]).then(axios.spread((nodes, links) => {
+    createForceSimulation(svg, nodes, links);
+  }));
+}, []);
+```
+
+Create a `createForceSimulation` function to create the nodes and links using D3.js force simulation.
+
+```javascript
+const createForceSimulation = (svg, nodes, links) => {
+  const width = svg.node().clientWidth;
+  const height = svg.node().clientHeight;
+  
+  // create D3.js force simulation
+  const simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).distance(150).strength(0.8))
+    .force('charge', d3.forceManyBody().strength(-500))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .alphaDecay(0.01);
+
+  // create links
+  const link = svg.append('g')
+    .selectAll('line')
+    .data(links)
+    .enter()
+    .append('line')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 2)
+    .attr('marker-end', 'url(#arrow)')
+
+  // create nodes
+  const node = svg.append('g')
+    .selectAll('foreignObject')
+    .data(nodes)
+    .enter()
+    .append('foreignObject')
+    .attr('width', 60)
+    .attr('height', 60)
+    .append('xhtml:div')
+    .style('display', 'flex')
+    .style('align-items', 'center')
+    .style('justify-content', 'center')
+    .html(d => `
+      <img src="${d.img}" style="width: 40px; height: 40px; border-radius: 50%">
+      <br>${d.name}
+    `)
+    .call(d3.drag().on('drag', dragHandler));
+
+  // show tooltip on hover
+  node.append('div')
+    .attr('class', 'tooltip')
+    .style('opacity', 0)
+    .html(d => `
+      <strong>${d.name}</strong>
+      <br>x: ${d.x}, y: ${d.y}
+    `);
+  
+  // add drag handler for nodes
+  function dragHandler(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  // add tick handler for nodes and links
+  simulation.on('tick', () => {
+    link.attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
+    
+    node.attr('x', d => d.x - 30)
+      .attr('y', d => d.y - 30);
+  });
+};
+```
+
+Step 3: Render the SVG element
+
+Add an SVG element to the JSX code and use a ref to reference it in the component.
+
+```javascript
+const svgRef = useRef(null);
+
+return (
+  <div className="App">
+    <svg ref={svgRef} width="800" height="600">
+      <defs>
+        <marker id="arrow" viewBox="0 -5 10 10" refX="30" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,-5L10,0L0,5" fill="black"></path>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+);
+```
+
+Step 4: Add styles and tooltip interaction
+
+Add some basic styles to the component.
+
+```css
+.App {
+  font-family: sans-serif;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid black;
+}
+```
+
+Add a hover event to show and hide the tooltip.
+
+```javascript
+node.on('mouseover', d => {
+  const tooltip = d3.select('.tooltip');
+  tooltip.transition().duration(200).style('opacity', 1);
+});
+
+node.on('mousemove', d => {
+  const tooltip = d3.select('.tooltip');
+  tooltip.style('left', (d3.event.pageX + 10) + 'px')
+    .style('top', (d3.event.pageY + 10) + 'px');
+});
+
+node.on('mouseout', d => {
+  const tooltip = d3.select('.tooltip');
+  tooltip.transition().duration(500).style('opacity', 0);
+});
+```
+
+Step 5: Update the node position on drag
+
+Update the `dragHandler` function to update the node position on drag and restart the simulation.
+
+```javascript
+function dragHandler(event, d) {
+  d.fx = event.x;
+  d.fy = event.y;
+  simulation.alpha(0.2).restart();
+}
+```
+
+The full code for the component is given below:
+
+```javascript
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+import axios from 'axios';
+import { getNodeData, getLinkData } from './mockData';
+import './App.css';
+
+function App() {
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    const svg = d3.select(svgRef.current);
+    
+    // create nodes and links using mock data from API
+    axios.all([getNodeData(), getLinkData()]).then(axios.spread((nodes, links) => {
+      createForceSimulation(svg, nodes, links);
+    }));
+  }, []);
+
+  const createForceSimulation = (svg, nodes, links) => {
+    const width = svg.node().clientWidth;
+    const height = svg.node().clientHeight;
+    
+    // create D3.js force simulation
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).distance(150).strength(0.8))
+      .force('charge', d3.forceManyBody().strength(-500))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .alphaDecay(0.01);
+
+    // create links
+    const link = svg.append('g')
+      .selectAll('line')
+      .data(links)
+      .enter()
+      .append('line')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 2)
+      .attr('marker-end', 'url(#arrow)')
+
+    // create nodes
+    const node = svg.append('g')
+      .selectAll('foreignObject')
+      .data(nodes)
+      .enter()
+      .append('foreignObject')
+      .attr('width', 60)
+      .attr('height', 60)
+      .append('xhtml:div')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('justify-content', 'center')
+      .html(d => `
+        <img src="${d.img}" style="width: 40px; height: 40px; border-radius: 50%">
+        <br>${d.name}
+      `)
+      .call(d3.drag().on('drag', dragHandler));
+
+    // show tooltip on hover
+    node.append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0)
+      .html(d => `
+        <strong>${d.name}</strong>
+        <br>x: ${d.x}, y: ${d.y}
+      `);
+    
+    // add drag handler for nodes
+    function dragHandler(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+      simulation.alpha(0.2).restart();
+    }
+
+    // add tick handler for nodes and links
+    simulation.on('tick', () => {
+      link.attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+      
+      node.attr('x', d => d.x - 30)
+        .attr('y', d => d.y - 30);
+    });
+
+    // add hover event for tooltip
+    node.on('mouseover', d => {
+      const tooltip = d3.select('.tooltip');
+      tooltip.transition().duration(200).style('opacity', 1);
+    });
+
+    node.on('mousemove', d => {
+      const tooltip = d3.select('.tooltip');
+      tooltip.style('left', (d3.event.pageX + 10) + 'px')
+        .style('top', (d3.event.pageY + 10) + 'px');
+    });
+
+    node.on('mouseout', d => {
+      const tooltip = d3.select('.tooltip');
+      tooltip.transition().duration(500).style('opacity', 0);
+    });
+  };
+
+  return (
+    <div className="App">
+      <svg ref={svgRef} width="800" height="600">
+        <defs>
+          <marker id="arrow" viewBox="0 -5 10 10" refX="30" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,-5L10,0L0,5" fill="black"></path>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  );
+}
+
+export default App;
+```
+
+That's it! You now have a custom D3.js visualisation in React with draggable nodes, PNG images, and tooltips.
