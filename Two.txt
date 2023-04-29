@@ -1,0 +1,178 @@
+Here's an example of how you could implement custom nodes in D3.js with React Hooks, along with draggable nodes, and edges with labels and tooltips using Axios mock API:
+
+1. Install the necessary dependencies:
+   ```
+   npm install d3 axios
+   ```
+2. Create a component called `myDiagram.js`:
+
+   ```js
+   import React, { useState, useEffect } from 'react';
+   import * as d3 from 'd3';
+   import axios from 'axios';
+
+   const MyDiagram = () => {
+     const [data, setData] = useState([]);
+
+     useEffect(() => {
+       const fetchData = async () => {
+         const result = await axios.get('/api/nodes'); // Mock API request
+
+         const nodes = result.data.nodes.map((node) => ({
+           id: node.id,
+           image: node.image,
+           label: node.label,
+         }));
+
+         const edges = result.data.edges.map((edge) => ({
+           source: edge.source,
+           target: edge.target,
+           label: edge.label,
+           tooltip: edge.tooltip,
+         }));
+
+         const width = 500;
+         const height = 500;
+         const svg = d3
+           .select('#myDiagram')
+           .append('svg')
+           .attr('width', width)
+           .attr('height', height);
+
+         const simulation = d3
+           .forceSimulation(nodes)
+           .force(
+             'link',
+             d3.forceLink(edges).id((d) => d.id)
+           )
+           .force('charge', d3.forceManyBody().strength(-50))
+           .force('x', d3.forceX(width / 2))
+           .force('y', d3.forceY(height / 2));
+
+         const link = svg.append('g').selectAll('line').data(edges).enter().append('line').attr('stroke', '#ccc').attr('stroke-width', 1);
+
+         const node = svg.append('g').selectAll('g').data(nodes).enter().append('g').call(d3.drag().on('start', dragStarted).on('drag', dragged).on('end', dragEnded));
+
+         node
+           .append('image')
+           .attr('href', (d) => d.image)
+           .attr('width', 40)
+           .attr('height', 40)
+           .attr('cursor', 'pointer')
+           .on('mouseover', (event, d) => {
+             d3.select(`#tooltip${d.id}`).style('visibility', 'visible');
+           })
+           .on('mousemove', (event) => {
+             d3.select(`#tooltip${d.id}`)
+               .style('top', event.pageY + 10 + 'px')
+               .style('left', event.pageX + 10 + 'px');
+           })
+           .on('mouseout', (event, d) => {
+             d3.select(`#tooltip${d.id}`).style('visibility', 'hidden');
+           });
+
+         node
+           .append('text')
+           .text((d) => d.label)
+           .attr('dy', 60)
+           .attr('text-anchor', 'middle');
+
+         const tip = svg
+           .append('g')
+           .selectAll('g')
+           .data(edges)
+           .enter()
+           .append('g')
+           .attr('class', 'tooltip')
+           .attr('id', (d) => `tooltip${d.source}${d.target}`)
+           .style('visibility', 'hidden');
+
+         tip
+           .append('rect')
+           .attr('width', 100)
+           .attr('height', 30)
+           .attr('fill', 'white')
+           .attr('stroke', 'black')
+           .attr('rx', 5)
+           .attr('ry', 5);
+
+         tip
+           .append('text')
+           .text((d) => d.tooltip)
+           .attr('x', 5)
+           .attr('y', 20);
+
+         simulation.on('tick', () => {
+           link.attr('x1', (d) => d.source.x).attr('y1', (d) => d.source.y).attr('x2', (d) => d.target.x).attr('y2', (d) => d.target.y);
+
+           node.attr('transform', (d) => 'translate(' + d.x + ',' + d.y + ')');
+         });
+
+         function dragStarted(event, d) {
+           if (!event.active) simulation.alphaTarget(0.3).restart();
+           d.fx = d.x;
+           d.fy = d.y;
+         }
+
+         function dragged(event, d) {
+           d.fx = event.x;
+           d.fy = event.y;
+         }
+
+         function dragEnded(event, d) {
+           if (!event.active) simulation.alphaTarget(0);
+           d.fx = null;
+           d.fy = null;
+         }
+       };
+
+       fetchData();
+     }, []);
+
+     return <div id="myDiagram"></div>;
+   };
+
+   export default MyDiagram;
+   ```
+
+3. Create a mock API response in a file called `db.json`:
+
+   ```json
+   {
+     "nodes": [
+       {
+         "id": 1,
+         "image": "https://www.example.com/image1.png",
+         "label": "Node 1"
+       },
+       {
+         "id": 2,
+         "image": "https://www.example.com/image2.png",
+         "label": "Node 2"
+       },
+       {
+         "id": 3,
+         "image": "https://www.example.com/image3.png",
+         "label": "Node 3"
+       }
+     ],
+     "edges": [
+       {
+         "source": 1,
+         "target": 2,
+         "label": "Edge 1",
+         "tooltip": "Tooltip for Edge 1"
+       },
+       {
+         "source": 2,
+         "target": 3,
+         "label": "Edge 2",
+         "tooltip": "Tooltip for Edge 2"
+       }
+     ]
+   }
+   ```
+
+4. Start the development server by running `npm run start`.
+
+This example should render three nodes with images and labels, two edges with labels and tooltips, and draggable nodes that move based on the force layout algorithm.
