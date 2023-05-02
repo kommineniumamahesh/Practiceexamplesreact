@@ -1,0 +1,35 @@
+const GraphComponent = () => {
+  const graphRef = useRef(null);
+  const [transform, setTransform] = useState(d3.zoomIdentity);
+  const [zoomActive, setZoomActive] = useState(false);
+
+  useEffect(() => {
+    const svg = d3.select(graphRef.current);
+    const zoom = d3.zoom().on('zoom', () => setTransform(d3.event.transform));
+    svg.call(zoom);
+
+    const zoomButton = document.getElementById('zoom-button');
+    zoomButton.addEventListener('click', () => {
+      setZoomActive(!zoomActive);
+      if (zoomActive) {
+        svg.call(zoom.transform, d3.zoomIdentity);
+      } else {
+        svg.call(zoom.scaleBy, 2);
+      }
+    });
+
+    return () => {
+      svg.on('.zoom', null);
+      zoomButton.removeEventListener('click', () => {});
+    };
+  }, [zoomActive]);
+
+  return (
+    <>
+      <button id="zoom-button">{zoomActive ? 'Reset Zoom' : 'Zoom In'}</button>
+      <svg ref={graphRef}>
+        <Graph id="graph-id" data={data} config={config} transform={transform} />
+      </svg>
+    </>
+  );
+};
