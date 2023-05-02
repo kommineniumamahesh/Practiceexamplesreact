@@ -1,0 +1,32 @@
+const data = {
+  nodes: [{ id: 'Node 1' }, { id: 'Node 2' }, { id: 'Node 3' }],
+  links: [{ source: 'Node 1', target: 'Node 2' }, { source: 'Node 2', target: 'Node 3' }],
+};
+
+const config = {
+  node: {
+    color: 'lightblue',
+    size: 200,
+    highlightStrokeColor: 'blue',
+    renderLabel: true,
+    labelProperty: 'id',
+    fontSize: 14,
+  },
+  link: {
+    color: 'lightgray',
+    strokeWidth: 2,
+  },
+  d3: {
+    gravity: -200,
+    linkLength: 100,
+  },
+  height: 500,
+  width: 800,
+  tooltipOptions: {
+    offset: { x: 10, y: 10 },
+    className: 'tooltip',
+    html: (d) => {
+      return `<div><strong>${d.id}</strong></div>`;
+    },
+  },
+};
