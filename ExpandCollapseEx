@@ -1,0 +1,81 @@
+Of course, here's a complete example of creating a custom node with image, label and programmatic collapse and expand using hooks with react-d3-graph.
+
+```
+import React, { useState } from "react";
+import { Graph } from "react-d3-graph";
+
+const MyGraph = () => {
+  const [graphData, setGraphData] = useState({
+    nodes: [
+      {
+        id: "id1",
+        label: "Example node",
+        image: "https://picsum.photos/id/1/100/100",
+        expanded: true,
+      },
+      {
+        id: "id2",
+        label: "Another node",
+        image: "https://picsum.photos/id/2/100/100",
+        expanded: true,
+      },
+    ],
+    links: [
+      {
+        source: "id1",
+        target: "id2",
+      },
+    ],
+  });
+
+  const onClickNode = (nodeId) => {
+    const node = graphData.nodes.find((n) => n.id === nodeId);
+    node.expanded = !node.expanded;
+    setGraphData({ ...graphData });
+  };
+
+  const config = {
+    node: {
+      custom: true,
+      render: (nodeProps) => (
+        <div>
+          <img src={nodeProps.image} alt="node-img" />
+          <p>{nodeProps.label}</p>
+          {nodeProps.expanded ? (
+            <button onClick={() => onClickNode(nodeProps.id)}>
+              Collapse
+            </button>
+          ) : (
+            <button onClick={() => onClickNode(nodeProps.id)}>Expand</button>
+          )}
+        </div>
+      ),
+    },
+  };
+
+  const options = {
+    height: "500px",
+  };
+
+  return (
+    <Graph
+      id="my-graph"
+      data={graphData}
+      config={config}
+      options={options}
+    />
+  );
+};
+
+export default MyGraph;
+```
+
+In this code, we are creating a functional component `MyGraph` that contains the graph data in the state using the `useState` hook. We are defining two nodes and one link between them. We also setting `expanded` property initially to `true` for each node.
+
+We are handling the node click by updating the `expanded` property of the selected node using the `onClickNode` function. 
+
+To create a custom node, we have set the `custom` property to `true` and passed a function that returns a React component as the `render` property in the `node` configuration. We are displaying an image, label, and a button for collapsible functionality within the custom component. 
+
+Finally, we are rendering the `Graph` component with the graph data, configuration, and options.
+
+This complete example should give you a working custom node with image, label, and programmable collapsible functionality applied to it using react-d3-graph and hooks.
