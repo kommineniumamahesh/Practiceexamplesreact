@@ -1,0 +1,66 @@
+import React from 'react';
+import { Graph } from 'react-d3-graph';
+
+const data = {
+  nodes: [
+    { id: 'node1', color: 'blue' },
+    { id: 'node2', color: 'green' },
+    { id: 'node3', color: 'red' },
+    { id: 'node4', color: 'yellow' },
+  ],
+  links: [
+    { source: 'node1', target: 'node2' },
+    { source: 'node1', target: 'node3' },
+    { source: 'node2', target: 'node4' },
+    { source: 'node3', target: 'node4' },
+  ],
+};
+
+const myConfig = {
+  nodeHighlightBehavior: true,
+  directed: true,
+  node: {
+    color: 'lightgreen',
+    size: 120,
+    highlightStrokeColor: 'blue',
+  },
+  link: {
+    highlightColor: 'lightblue',
+  },
+  d3: {
+    alphaTarget: 0.05,
+    gravity: -250,
+    linkLength: 120,
+    linkStrength: 2,
+  },
+  nodeClick: function (nodeId, node) {
+    // Get the current node
+    const currentNodes = this.state.nodes;
+
+    // Hide direct nodes of the current node
+    const updatedNodes = currentNodes.map((n) => {
+      if (n.id === nodeId) {
+        return {
+          ...n,
+          hidden: false, // show the clicked node again
+        };
+      } else if (data.links.some((l) => l.source === nodeId && l.target === n.id)) {
+        return {
+          ...n,
+          hidden: true,
+        };
+      } else {
+        return n;
+      }
+    });
+
+    // Update the state with the new nodes
+    this.setState({ nodes: updatedNodes });
+  },
+};
+
+const MyGraph = () => {
+  return <Graph id="graph-id" data={data} config={myConfig} />;
+};
+
+export default MyGraph;
