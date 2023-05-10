@@ -1,0 +1,46 @@
+import React, { useState } from 'react';
+import { Graph } from 'react-d3-graph';
+
+const MyGraph = () => {
+  const [data, setData] = useState({
+    nodes: [
+      { id: 'Node 1' },
+      { id: 'Node 2' },
+      { id: 'Node 3' },
+    ],
+    links: [
+      { source: 'Node 1', target: 'Node 2' },
+      { source: 'Node 2', target: 'Node 3' },
+      { source: 'Node 3', target: 'Node 1' },
+    ],
+  });
+
+  const handleNodeRightClick = (event, node) => {
+    event.preventDefault();
+    const filteredNodes = data.nodes.filter((n) => n.id !== node.id);
+    const filteredLinks = data.links.filter((l) => l.source !== node.id && l.target !== node.id);
+    setData({ nodes: filteredNodes, links: filteredLinks });
+  };
+
+  const config = {
+    node: {
+      size: 120,
+      highlightStrokeColor: 'blue',
+    },
+    link: {
+      highlightColor: 'lightblue',
+      strokeWidth: 3,
+    },
+  };
+
+  return (
+    <Graph
+      id="my-graph"
+      data={data}
+      config={config}
+      onNodeRightClick={handleNodeRightClick}
+    />
+  );
+};
+
+export default MyGraph;
