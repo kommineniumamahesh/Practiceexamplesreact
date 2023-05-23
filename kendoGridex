@@ -1,0 +1,85 @@
+import React, { useState } from 'react';
+import { Grid, GridColumn as Column, GridToolbar } from '@progress/kendo-react-grid';
+import { process } from '@progress/kendo-data-query';
+
+const initialData = [
+  { id: 1, name: 'John Doe', age: 30 },
+  { id: 2, name: 'Jane Smith', age: 25 },
+  { id: 3, name: 'Bob Johnson', age: 40 }
+];
+
+const App = () => {
+  const [data, setData] = useState(initialData);
+
+  const handleEdit = (e) => {
+    const newData = data.map(item => {
+      if (item.id === e.dataItem.id) {
+        return { ...item, ...e.dataItem };
+      }
+      return item;
+    });
+    setData(newData);
+  };
+
+  const handleDelete = (e) => {
+    const newData = data.filter(item => item.id !== e.dataItem.id);
+    setData(newData);
+  };
+
+  const handleAdd = (e) => {
+    const newItem = {
+      id: data.length + 1,
+      ...e.dataItem
+    };
+    const newData = [...data, newItem];
+    setData(newData);
+  };
+
+  const handleSave = (e) => {
+    setData(e.data);
+  };
+
+  return (
+    <div>
+      <Grid
+        data={data}
+        editField="inEdit"
+        onItemChange={handleEdit}
+        onItemRemove={handleDelete}
+        onItemAdd={handleAdd}
+        onDataStateChange={handleSave}
+      >
+        <GridToolbar>
+          <button
+            title="Add new"
+            className="k-button k-primary"
+            onClick={() => {
+              const newDataState = {
+                ...dataState,
+                editField: "inEdit",
+                data: [
+                  ...data,
+                  {
+                    id: data.length + 1,
+                    name: "",
+                    age: null,
+                    inEdit: true
+                  }
+                ]
+              };
+              setDataState(newDataState);
+            }}
+          >
+            Add new
+          </button>
+        </GridToolbar>
+        <Column field="id" title="ID" width="80px" editable={false} />
+        <Column field="name" title="Name" />
+        <Column field="age" title="Age" />
+        <Column command={[{ name: 'edit', text: 'Edit' }, { name: 'destroy', text: 'Delete' }]} width="200px" />
+      </Grid>
+    </div>
+  );
+};
+
+export default App;
