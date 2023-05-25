@@ -1,0 +1,137 @@
+Certainly! Here's a complete example of using ngrx store with a mock API call and an ag-Grid in Angular 8.
+
+1. Install Required Packages:
+First, install the necessary packages by running the following commands in your Angular project:
+
+```shell
+npm install @ngrx/store @ngrx/effects ag-grid-community ag-grid-angular
+```
+
+2. Create Actions, Reducers, and Effects:
+Create the necessary files for actions, reducers, and effects.
+
+data.actions.ts:
+
+```typescript
+import { createAction, props } from '@ngrx/store';
+
+export const fetchData = createAction('[Data] Fetch Data');
+export const setData = createAction('[Data] Set Data', props<{ data: any[] }>());
+```
+
+data.reducer.ts:
+
+```typescript
+import { createReducer, on } from '@ngrx/store';
+import { setData } from './data.actions';
+
+export const initialState: any[] = [];
+
+export const dataReducer = createReducer(
+  initialState,
+  on(setData, (state, { data }) => data)
+);
+```
+
+data.effects.ts:
+
+```typescript
+import { Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { fetchData, setData } from './data.actions';
+import { switchMap, map } from 'rxjs/operators';
+import { of } from 'rxjs';
+
+@Injectable()
+export class DataEffects {
+  fetchData$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(fetchData),
+      switchMap(() => {
+        // Simulate API call
+        const mockData = [
+          { id: 1, name: 'John' },
+          { id: 2, name: 'Jane' },
+        ];
+
+        return of(setData({ data: mockData }));
+      })
+    )
+  );
+
+  constructor(private actions$: Actions) {}
+}
+```
+
+3. Register Reducer and Effects:
+In your `app.module.ts` file, register the reducer and effects.
+
+app.module.ts:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { dataReducer } from './data.reducer';
+import { DataEffects } from './data.effects';
+
+@NgModule({
+  imports: [
+    StoreModule.forRoot({ data: dataReducer }),
+    EffectsModule.forRoot([DataEffects]),
+  ],
+  // ...
+})
+export class AppModule {}
+```
+
+4. Create a Component:
+Create a component called `DataGridComponent` and add the following code:
+
+data-grid.component.ts:
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { fetchData } from './data.actions';
+
+@Component({
+  selector: 'app-data-grid',
+  template: `
+    <ag-grid-angular
+      style="width: 500px; height: 300px"
+      class="ag-theme-alpine"
+      [rowData]="data$ | async"
+      [columnDefs]="columnDefs"
+    ></ag-grid-angular>
+    <button (click)="fetchData()">Fetch Data</button>
+  `,
+})
+export class DataGridComponent implements OnInit {
+  data$: Observable<any[]>;
+
+  columnDefs = [
+    { headerName: 'ID', field: 'id' },
+    { headerName: 'Name', field: 'name' },
+  ];
+
+  constructor(private store: Store<{ data: any[] }>) {}
+
+  ngOnInit() {
+    this.data$ = this.store.select((state) => state.data);
+  }
+
+  fetchData() {
+    this.store.dispatch(fetchData());
+  }
+}
+```
+
+5. Update App Component:
+Update the `app.component.ts` file to include the `DataGridComponent`.
+
+app.component.ts:
+
+```typescript
+import { Component
