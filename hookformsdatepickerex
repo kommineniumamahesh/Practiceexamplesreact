@@ -1,0 +1,52 @@
+import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import DatePicker from 'react-date-picker';
+
+const App = () => {
+  const { handleSubmit, control, watch } = useForm();
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>Start Date</label>
+        <Controller
+          control={control}
+          name="startDate"
+          defaultValue={null}
+          render={({ field }) => (
+            <DatePicker
+              {...field}
+              value={field.value}
+              onChange={(date) => field.onChange(date)}
+            />
+          )}
+        />
+      </div>
+      <div>
+        <label>End Date</label>
+        <Controller
+          control={control}
+          name="endDate"
+          defaultValue={null}
+          render={({ field }) => (
+            <DatePicker
+              {...field}
+              value={field.value}
+              onChange={(date) => field.onChange(date)}
+              minDate={startDate} // Set the minimum date based on the selected start date
+            />
+          )}
+        />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default App;
