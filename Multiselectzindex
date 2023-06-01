@@ -1,0 +1,42 @@
+To restrict the height of a React Select component with multiple options selected, you can use the `menuPortalTarget` prop along with the `styles` prop to set a maximum height for the dropdown menu and add a scrollbar if the menu exceeds that height. Here's a sample code snippet:
+
+```jsx
+import Select from 'react-select';
+
+const options = [
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+  // Add more options as needed
+];
+
+const customStyles = {
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+  menu: (provided) => ({
+    ...provided,
+    maxHeight: '200px', // Maximum height for the dropdown menu
+    overflowY: 'auto', // Add scrollbar if the menu exceeds the maximum height
+  }),
+};
+
+const MySelect = () => {
+  return (
+    <Select
+      options={options}
+      isMulti
+      menuPortalTarget={document.body}
+      styles={customStyles} 
+      // Other props as needed
+    />
+  );
+};
+```
+
+In this example, we're creating a custom `styles` object with two properties: `menuPortal` and `menu`. The `menuPortal` property sets the `zIndex` to a high value to avoid any overlapping issues caused by other elements on the page. The `menu` property sets the `maxHeight` to `200px` (or any other maximum height you want to set) and adds `overflowY: 'auto'` to add a scrollbar if the menu exceeds the maximum height.
+
+We're then passing this `styles` object to the `Select` component along with the `menuPortalTarget` prop set to `document.body`. This is necessary to ensure that the dropdown menu appears above all other elements on the page.
+
+Note: The `menuPortalTarget` prop is required when using the `menuPortal` prop in the `styles` object.
