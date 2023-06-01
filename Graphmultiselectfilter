@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+import { Graph } from 'react-d3-graph';
+import Select from 'react-select';
+
+const GraphComponent = ({ data }) => {
+  const [selectedCategory, setSelectedCategory] = useState([]);
+
+  const filteredNodes = data.nodes.filter((node) => {
+    if (selectedCategory.length === 0) {
+      return true; // No category selected, show all nodes
+    } else {
+      return selectedCategory.includes(node.category);
+    }
+  });
+
+  const filteredEdges = data.edges.filter(
+    (edge) =>
+      selectedCategory.length === 0 ||
+      filteredNodes.some((node) => node.id === edge.source) ||
+      filteredNodes.some((node) => node.id === edge.target)
+  );
+
+  const graphConfig = {
+    nodeHighlightBehavior: true,
+    node: {
+      color: 'lightblue',
+      size: 120,
+      highlightStrokeColor: 'blue',
+    },
+    link: {
+      highlightColor: 'lightblue',
+    },
+  };
+
+  const categoryOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'Category1', label: 'Category1' },
+    { value: 'Category2', label: 'Category2' },
+    { value: 'Category3', label: 'Category3' },
+  ];
+
+  const handleCategoryChange = (selectedOptions) => {
+    const categories = selectedOptions.map((option) => option.value);
+    setSelectedCategory(categories);
+  };
+
+  return (
+    <div>
+      <Select
+        value={selectedCategory.map((category) => ({
+          value: category,
+          label: category,
+        }))}
+        options={categoryOptions}
+        isMulti
+        onChange={handleCategoryChange}
+      />
+      <Graph
+        id="graph-id"
+        data={{ nodes: filteredNodes, links: filteredEdges }}
+        config={graphConfig}
+      />
+    </div>
