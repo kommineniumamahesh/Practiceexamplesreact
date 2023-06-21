@@ -1,0 +1,80 @@
+import React, { useState } from 'react';
+import { Graph } from 'react-d3-graph';
+
+const GraphComponent = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nodesPerPage, setNodesPerPage] = useState(50);
+
+  // Sample nodes array
+  const nodes = [
+    { id: 'node1', value: 10 },
+    { id: 'node2', value: 30 },
+    { id: 'node3', value: 50 },
+    // ... Add more nodes here
+  ];
+
+  // Sample links array
+  const links = [
+    { source: 'node1', target: 'node2', value: 20 },
+    { source: 'node2', target: 'node3', value: 40 },
+    // ... Add more links here
+  ];
+
+  // Calculate the start and end index of the current page
+  const startIndex = (currentPage - 1) * nodesPerPage;
+  const endIndex = startIndex + nodesPerPage;
+
+  // Get the nodes for the current page
+  const slicedNodes = nodes.slice(startIndex, endIndex);
+
+  // Filter the links based on the sliced nodes
+  const filteredLinks = links.filter((link) =>
+    slicedNodes.some((node) => node.id === link.source) && slicedNodes.some((node) => node.id === link.target)
+  );
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(nodes.length / nodesPerPage);
+
+  // Handle pagination change
+  const handlePaginationChange = (event) => {
+    const newNodesPerPage = Number(event.target.value);
+    setNodesPerPage(newNodesPerPage);
+    setCurrentPage(1); // Reset current page to 1 when changing nodes per page
+  };
+
+  return (
+    <div>
+      <Graph
+        id="graph-id"
+        data={{
+          nodes: slicedNodes,
+          links: filteredLinks,
+        }}
+      />
+
+      {/* Pagination controls */}
+      <div>
+        <button disabled={currentPage === 1} onClick={() => setCurrentPage((prevPage) => prevPage - 1)}>
+          Previous Page
+        </button>
+        <span>{`Page ${currentPage} of ${totalPages}`}</span>
+        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((prevPage) => prevPage + 1)}>
+          Next Page
+        </button>
+      </div>
+
+      {/* Dropdown for changing nodes per page */}
+      <div>
+        <label>Nodes per Page:</label>
+        <select value={nodesPerPage} onChange={handlePaginationChange}>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+      </div>
+    </div>
+  );
+};
+
+export default GraphComponent;
