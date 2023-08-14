@@ -1,85 +1,78 @@
-import React, { useState } from 'react';
-import { Grid, GridColumn as Column, GridToolbar } from '@progress/kendo-react-grid';
-import { process } from '@progress/kendo-data-query';
+Certainly! Here's an updated example that includes nested groups using the "react-d3-graph" library:
 
-const initialData = [
-  { id: 1, name: 'John Doe', age: 30 },
-  { id: 2, name: 'Jane Smith', age: 25 },
-  { id: 3, name: 'Bob Johnson', age: 40 }
-];
+First, install the library using npm:
 
-const App = () => {
-  const [data, setData] = useState(initialData);
+```
+npm install react-d3-graph
+```
 
-  const handleEdit = (e) => {
-    const newData = data.map(item => {
-      if (item.id === e.dataItem.id) {
-        return { ...item, ...e.dataItem };
-      }
-      return item;
-    });
-    setData(newData);
+Next, import the necessary components and create a grouped graph with nested groups:
+
+```jsx
+import React from 'react';
+import { Graph } from 'react-d3-graph';
+
+const GraphExample = () => {
+  // Define the nodes and edges data
+  const nodes = [
+    { id: 'na', name: 'North America', group: 'continent' },
+    { id: 'usa', name: 'United States', group: 'country', parent: 'na' },
+    { id: 'canada', name: 'Canada', group: 'country', parent: 'na' },
+    { id: 'mexico', name: 'Mexico', group: 'country', parent: 'na' },
+    { id: 'europe', name: 'Europe', group: 'continent' },
+    { id: 'germany', name: 'Germany', group: 'country', parent: 'europe' },
+    { id: 'france', name: 'France', group: 'country', parent: 'europe' },
+    { id: 'spain', name: 'Spain', group: 'country', parent: 'europe' },
+    { id: 'asia', name: 'Asia', group: 'continent' },
+    { id: 'japan', name: 'Japan', group: 'country', parent: 'asia' },
+    { id: 'china', name: 'China', group: 'country', parent: 'asia' },
+    { id: 'india', name: 'India', group: 'country', parent: 'asia' },
+  ];
+  const links = [
+    { source: 'usa', target: 'canada' },
+    { source: 'usa', target: 'mexico' },
+    { source: 'germany', target: 'france' },
+    { source: 'germany', target: 'spain' },
+    { source: 'japan', target: 'china' },
+    { source: 'japan', target: 'india' },
+  ];
+
+  // Define the configuration for the graph
+  const graphConfig = {
+    node: {
+      highlightFontSize: 12,
+      fontSize: 10,
+    },
+    link: {
+      highlightColor: 'orange',
+    },
   };
 
-  const handleDelete = (e) => {
-    const newData = data.filter(item => item.id !== e.dataItem.id);
-    setData(newData);
-  };
-
-  const handleAdd = (e) => {
-    const newItem = {
-      id: data.length + 1,
-      ...e.dataItem
-    };
-    const newData = [...data, newItem];
-    setData(newData);
-  };
-
-  const handleSave = (e) => {
-    setData(e.data);
+  // Define the data object for the graph
+  const data = {
+    nodes: nodes.map(({ id, name, group, parent }) => ({
+      id,
+      name,
+      symbolType: group,
+      parent,
+    })),
+    links,
   };
 
   return (
-    <div>
-      <Grid
-        data={data}
-        editField="inEdit"
-        onItemChange={handleEdit}
-        onItemRemove={handleDelete}
-        onItemAdd={handleAdd}
-        onDataStateChange={handleSave}
-      >
-        <GridToolbar>
-          <button
-            title="Add new"
-            className="k-button k-primary"
-            onClick={() => {
-              const newDataState = {
-                ...dataState,
-                editField: "inEdit",
-                data: [
-                  ...data,
-                  {
-                    id: data.length + 1,
-                    name: "",
-                    age: null,
-                    inEdit: true
-                  }
-                ]
-              };
-              setDataState(newDataState);
-            }}
-          >
-            Add new
-          </button>
-        </GridToolbar>
-        <Column field="id" title="ID" width="80px" editable={false} />
-        <Column field="name" title="Name" />
-        <Column field="age" title="Age" />
-        <Column command={[{ name: 'edit', text: 'Edit' }, { name: 'destroy', text: 'Delete' }]} width="200px" />
-      </Grid>
-    </div>
+    <Graph
+      id="graph-id"
+      data={data}
+      config={graphConfig}
+    />
   );
 };
 
-export default App;
+export default GraphExample;
+```
+
+In this example, we introduce the concept of nested groups. Each node is assigned a group (continent or country) and can have a parent node. The parent node represents the higher-level grouping, such as the continent in this case. The `parent` property is used to specify the parent node for each country.
+
+By using the `parent` property, the library will automatically nest the nodes within their respective parent groups, creating a hierarchical structure in the graph visualization.
+
+Remember to consult the documentation of the specific library you choose for more advanced features and customization options related to nested groups.
