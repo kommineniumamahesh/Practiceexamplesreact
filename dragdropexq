@@ -1,0 +1,92 @@
+Certainly! Here's an updated version of the code that includes drag and drop functionality using React Hooks:
+
+```javascript
+import React, { useState, useEffect, useRef } from 'react';
+
+const App = () => {
+  const [nodes, setNodes] = useState([]);
+  const [selectedNodes, setSelectedNodes] = useState([]);
+  const [destinationNodes, setDestinationNodes] = useState([]);
+  const dragNodeRef = useRef(null);
+
+  useEffect(() => {
+    const fetchedNodes = ['Node 1', 'Node 2', 'Node 3'];
+    setNodes(fetchedNodes);
+  }, []);
+
+  const handleNodeSelection = (node) => {
+    if (selectedNodes.includes(node)) {
+      setSelectedNodes(selectedNodes.filter((selectedNode) => selectedNode !== node));
+    } else {
+      setSelectedNodes([...selectedNodes, node]);
+    }
+  };
+
+  const handleMoveNodes = () => {
+    setDestinationNodes([...destinationNodes, ...selectedNodes]);
+    setSelectedNodes([]);
+  };
+
+  const handleDragStart = (event, node) => {
+    dragNodeRef.current = node;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', node);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedNode = dragNodeRef.current;
+    setDestinationNodes([...destinationNodes, droppedNode]);
+    setSelectedNodes(selectedNodes.filter((selectedNode) => selectedNode !== droppedNode));
+  };
+
+  return (
+    <div>
+      <h2>Current Nodes:</h2>
+      {nodes.map((node) => (
+        <div
+          key={node}
+          draggable
+          onDragStart={(event) => handleDragStart(event, node)}
+          onClick={() => handleNodeSelection(node)}
+          style={{ backgroundColor: selectedNodes.includes(node) ? 'yellow' : 'white' }}
+        >
+          {node}
+        </div>
+      ))}
+      <h2>Destination Nodes:</h2>
+      <div
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        style={{ border: '1px solid black', padding: '10px' }}
+      >
+        {destinationNodes.map((node) => (
+          <div key={node}>{node}</div>
+        ))}
+      </div>
+      <button onClick={handleMoveNodes}>Move Selected Nodes</button>
+    </div>
+  );
+};
+
+export default App;
+```
+
+In this updated code, we added the `handleDragStart`, `handleDragOver`, and `handleDrop` functions to enable drag and drop functionality.
+
+The `handleDragStart` function is called when a node is dragged. It sets the dragged node in the `dragNodeRef` using `useRef` and sets the data type and value to be dragged in the event's dataTransfer object.
+
+The `handleDragOver` function is called when a node is being dragged over another element. It prevents the default behavior and sets the drop effect to 'move'.
+
+The `handleDrop` function is called when a node is dropped onto the destination area. It prevents the default behavior, retrieves the dropped node from `dragNodeRef`, adds it to the `destinationNodes`, and removes it from the `selectedNodes`.
+
+The draggable nodes now have the `draggable` attribute and event listeners (`onDragStart`, `onClick`) attached. The background color of the selected nodes is changed to yellow.
+
+The destination area has the `onDragOver` and `onDrop` event listeners attached to allow dropping of nodes. The dropped nodes are rendered inside a `div` element with a border, demonstrating the drop target area.
+
+I hope this helps! Let me know if you have any further questions.
