@@ -1,0 +1,110 @@
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import './App.css'; // Import your CSS file for styling
+
+const initialList1 = [
+  {
+    id: 'item-1',
+    text: 'Item 1',
+  },
+  {
+    id: 'item-2',
+    text: 'Item 2',
+  },
+  // Add more items as needed
+];
+
+const initialList2 = [];
+
+function App() {
+  const [list1, setList1] = useState(initialList1);
+  const [list2, setList2] = useState(initialList2);
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const sourceList = result.source.droppableId === 'list1' ? list1 : list2;
+    const destinationList =
+      result.destination.droppableId === 'list1' ? list1 : list2;
+
+    const [movedItem] = sourceList.splice(result.source.index, 1);
+    destinationList.splice(result.destination.index, 0, movedItem);
+
+    setList1([...list1]);
+    setList2([...list2]);
+  };
+
+  return (
+    <div className="app-container">
+      <h1>Drag and Drop Example</h1>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="lists-container">
+          <Droppable droppableId="list1" direction="vertical">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="list"
+              >
+                <h2>List 1</h2>
+                {list1.map((item, index) => (
+                  <Draggable
+                    key={item.id}
+                    draggableId={item.id}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="draggable-item"
+                      >
+                        {item.text}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+          <Droppable droppableId="list2" direction="vertical">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="list"
+              >
+                <h2>List 2</h2>
+                {list2.map((item, index) => (
+                  <Draggable
+                    key={item.id}
+                    draggableId={item.id}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="draggable-item"
+                      >
+                        {item.text}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </div>
+      </DragDropContext>
+    </div>
+  );
+}
+
+export default App;
