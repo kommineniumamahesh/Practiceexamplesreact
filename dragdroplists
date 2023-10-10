@@ -1,0 +1,83 @@
+import React, { useState } from 'react';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
+// Define a draggable item component
+const DraggableItem = ({ item, index, moveItem }) => {
+  const [, ref] = useDrag({
+    type: 'ITEM',
+    item: { id: item.id, index },
+  });
+
+  const [, drop] = useDrop({
+    type: 'ITEM',
+    accept: 'ITEM',
+    hover: (draggedItem) => {
+      if (draggedItem.id !== item.id) {
+        moveItem(draggedItem.index, index);
+        draggedItem.index = index;
+      }
+    },
+  });
+
+  return (
+    <div ref={(node) => ref(drop(node))} className="draggable-item">
+      {item.text}
+    </div>
+  );
+};
+
+// Main App component
+function App() {
+  const [list1, setList1] = useState([
+    { id: 1, text: 'Item 1' },
+    { id: 2, text: 'Item 2' },
+    // Add more items as needed
+  ]);
+
+  const [list2, setList2] = useState([]);
+
+  const moveItem = (fromIndex, toIndex, sourceList, targetList) => {
+    const sourceItems = [...sourceList];
+    const targetItems = [...targetList];
+    const [movedItem] = sourceItems.splice(fromIndex, 1);
+    targetItems.splice(toIndex, 0, movedItem);
+    setList1(sourceItems);
+    setList2(targetItems);
+  };
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="list-container">
+        <div className="list">
+          <h2>List 1</h2>
+          {list1.map((item, index) => (
+            <DraggableItem
+              key={item.id}
+              item={item}
+              index={index}
+              moveItem={(fromIndex, toIndex) =>
+                moveItem(fromIndex, toIndex, list1, list2)
+              }
+            />
+          ))}
+        </div>
+        <div className="list">
+          <h2>List 2</h2>
+          {list2.map((item, index) => (
+            <DraggableItem
+              key={item.id}
+              item={item}
+              index={index}
+              moveItem={(fromIndex, toIndex) =>
+                moveItem(fromIndex, toIndex, list2, list1)
+              }
+            />
+          ))}
+        </div>
+      </div>
+    </DndProvider>
+  );
+}
+
+export default App;
