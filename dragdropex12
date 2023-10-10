@@ -1,0 +1,74 @@
+import React, { useState } from 'react';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
+// Define a draggable tree item component
+const DraggableItem = ({ item, index, moveItem, isSelected, toggleSelect }) => {
+  const [, ref] = useDrag({
+    type: 'TREE_ITEM',
+    item: { id: item.id, index },
+  });
+
+  const [, drop] = useDrop({
+    type: 'TREE_ITEM',
+    accept: 'TREE_ITEM',
+    hover: (draggedItem) => {
+      if (draggedItem.id !== item.id) {
+        moveItem(draggedItem.index, index);
+        draggedItem.index = index;
+      }
+    },
+  });
+
+  return (
+    <div
+      ref={(node) => ref(drop(node))}
+      className={`tree-item ${isSelected ? 'selected' : ''}`}
+      onClick={() => toggleSelect(item.id)}
+    >
+      {item.text}
+    </div>
+  );
+};
+
+// Main App component
+function App() {
+  const [items, setItems] = useState([
+    { id: 1, text: 'Item 1', selected: false },
+    { id: 2, text: 'Item 2', selected: false },
+    // Add more items as needed
+  ]);
+
+  const moveItem = (fromIndex, toIndex) => {
+    const updatedItems = [...items];
+    const [movedItem] = updatedItems.splice(fromIndex, 1);
+    updatedItems.splice(toIndex, 0, movedItem);
+    setItems(updatedItems);
+  };
+
+  const toggleSelect = (itemId) => {
+    const updatedItems = items.map((item) =>
+      item.id === itemId ? { ...item, selected: !item.selected } : item
+    );
+    setItems(updatedItems);
+  };
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="tree-view">
+        {items.map((item, index) => (
+          <DraggableItem
+            key={item.id}
+            item={item}
+            index={index}
+            moveItem={moveItem}
+            isSelected={item.selected}
+            toggleSelect={toggleSelect}
+          />
+        ))}
+      </div>
+    </DndProvider>
+  );
+}
+
+export default App;
