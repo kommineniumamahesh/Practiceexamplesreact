@@ -1,0 +1,73 @@
+import React, { useState } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+
+const columns = [
+  { headerName: 'ID', field: 'id' },
+  { headerName: 'Name', field: 'name' },
+];
+
+const rowData1 = [
+  { id: 1, name: 'Item 1' },
+  { id: 2, name: 'Item 2' },
+  { id: 3, name: 'Item 3' },
+];
+
+const rowData2 = [];
+
+function App() {
+  const [gridApi1, setGridApi1] = useState(null);
+  const [gridApi2, setGridApi2] = useState(null);
+
+  const onGridReady1 = (params) => {
+    setGridApi1(params.api);
+  };
+
+  const onGridReady2 = (params) => {
+    setGridApi2(params.api);
+  };
+
+  const onRowDragEnd = (event) => {
+    const sourceGridApi = event.api;
+    const destinationGridApi = event.destination.api;
+
+    const nodesToMove = event.nodes;
+
+    // Remove rows from the source grid
+    sourceGridApi.applyTransaction({ remove: nodesToMove });
+
+    // Add rows to the destination grid
+    destinationGridApi.applyTransaction({ add: nodesToMove });
+  };
+
+  return (
+    <div className="app-container">
+      <h1>AG-Grid Row Drag and Drop Example</h1>
+      <div className="grid-container">
+        <div className="ag-theme-alpine" style={{ height: 400, width: 400 }}>
+          <AgGridReact
+            onGridReady={onGridReady1}
+            onRowDragEnd={onRowDragEnd}
+            rowData={rowData1}
+            columnDefs={columns}
+            rowSelection="multiple"
+            rowDragManaged={true}
+          />
+        </div>
+        <div className="ag-theme-alpine" style={{ height: 400, width: 400 }}>
+          <AgGridReact
+            onGridReady={onGridReady2}
+            onRowDragEnd={onRowDragEnd}
+            rowData={rowData2}
+            columnDefs={columns}
+            rowSelection="multiple"
+            rowDragManaged={true}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
