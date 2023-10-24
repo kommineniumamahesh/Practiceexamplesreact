@@ -1,0 +1,26 @@
+{
+  "nodes": [
+    { "id": "Person 1", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 1" },
+    { "id": "Person 2", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 2" },
+    { "id": "Person 3", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 3" },
+    { "id": "Person 4", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 4" },
+    { "id": "Person 5", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 5" },
+    { "id": "Person 6", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 6" },
+    { "id": "Person 7", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 7" },
+    { "id": "Person 8", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 8" },
+    { "id": "Person 9", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 9" },
+    { "id": "Person 10", "type": "rect", "style": { "fill": "lightcoral" }, "label": "Person 10" }
+  ],
+  "edges": [
+    { "source": "Person 1", "target": "Person 10", "label": "Transfer $1000", "tooltip": "Details of the transfer" },
+    { "source": "Person 2", "target": "Person 10", "label": "Transfer $800", "tooltip": "More details here" },
+    { "source": "Person 3", "target": "Person 10", "label": "Transfer $600", "tooltip": "Even more details" },
+    { "source": "Person 4", "target": "Person 10", "label": "Transfer $400", "tooltip": "Transaction details" },
+    { "source": "Person 5", "target": "Person 4", "label": "Transfer $200", "tooltip": "Transfer information" },
+    { "source": "Person 6", "target": "Person 4", "label": "Transfer $300", "tooltip": "Transaction details" },
+    { "source": "Person 7", "target": "Person 2", "label": "Transfer $150", "tooltip": "More details here" },
+    { "source": "Person 8", "target": "Person 2", "label": "Transfer $120", "tooltip": "Details of the transfer" },
+    { "source": "Person 9", "target": "Person 1", "label": "Transfer $80", "tooltip": "Transfer information" },
+    { "source": "Person 10", "target": "Person 1", "label": "Transfer $50", "tooltip": "Even more details" }
+  ]
+}
