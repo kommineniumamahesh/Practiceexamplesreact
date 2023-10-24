@@ -1,0 +1,69 @@
+import React, { useEffect } from 'react';
+import G6 from '@antv/g6';
+
+function MoneyFlowGraph() {
+  useEffect(() => {
+    const data = {
+      nodes: [
+        { id: 'Person 1', type: 'rect', style: { fill: 'lightcoral' } },
+        { id: 'Person 2', type: 'rect', style: { fill: 'lightcoral' } },
+        { id: 'Person 3', type: 'rect', style: { fill: 'lightcoral' } },
+        { id: 'Person 4', type: 'rect', style: { fill: 'lightcoral' } },
+      ],
+      edges: [
+        { source: 'Person 1', target: 'Person 2', label: 'Transfer $1000' },
+        { source: 'Person 2', target: 'Person 3', label: 'Transfer $800' },
+        { source: 'Person 3', target: 'Person 4', label: 'Transfer $600' },
+      ],
+    };
+
+    const width = 800;
+    const height = 600;
+
+    const graph = new G6.Graph({
+      container: 'money-flow-chart',
+      width,
+      height,
+      modes: {
+        default: ['drag-canvas'],
+      },
+      defaultNode: {
+        shape: 'rect',
+        size: [120, 40],
+        labelCfg: {
+          position: 'center',
+          style: {
+            fill: 'black',
+          },
+        },
+        style: {
+          fill: 'lightcoral',
+        },
+      },
+      defaultEdge: {
+        type: 'polyline',
+        style: {
+          radius: 10,
+          endArrow: true,
+          lineWidth: 2,
+          stroke: 'lightblue',
+        },
+        labelCfg: {
+          autoRotate: true,
+        },
+      },
+    });
+
+    graph.data(data);
+    graph.render();
+
+    // Clean up the graph when the component is unmounted
+    return () => {
+      graph.destroy();
+    };
+  }, []); // The empty array ensures this effect runs only once when the component is mounted
+
+  return <div id="money-flow-chart" style={{ width: '800px', height: '600px' }} />;
+}
+
+export default MoneyFlowGraph;
