@@ -1,0 +1,89 @@
+import React, { useEffect } from 'react';
+import G6 from '@antv/g6';
+
+function MoneyFlowGraph() {
+  useEffect(() => {
+    const data = {
+      nodes: [
+        { id: 'Person 1', type: 'rect', style: { fill: 'lightcoral' }, label: 'Person 1' },
+        { id: 'Person 2', type: 'rect', style: { fill: 'lightcoral' }, label: 'Person 2' },
+        { id: 'Person 3', type: 'rect', style: { fill: 'lightcoral' }, label: 'Person 3' },
+        { id: 'Person 4', type: 'rect', style: { fill: 'lightcoral' }, label: 'Person 4' },
+      ],
+      edges: [
+        { source: 'Person 1', target: 'Person 2', label: 'Transfer $1000', tooltip: 'Details of the transfer' },
+        { source: 'Person 2', target: 'Person 3', label: 'Transfer $800', tooltip: 'More details here' },
+        { source: 'Person 3', target: 'Person 4', label: 'Transfer $600', tooltip: 'Even more details' },
+      ],
+    };
+
+    const width = 800;
+    const height = 600;
+
+    const graph = new G6.Graph({
+      container: 'money-flow-chart',
+      width,
+      height,
+      modes: {
+        default: ['drag-canvas'],
+      },
+      defaultNode: {
+        shape: 'rect',
+        size: [120, 40],
+        labelCfg: {
+          position: 'center',
+          style: {
+            fill: 'black',
+          },
+        },
+        style: {
+          fill: 'lightcoral',
+        },
+      },
+      defaultEdge: {
+        type: 'polyline',
+        style: {
+          radius: 10,
+          endArrow: true,
+          lineWidth: 2,
+          stroke: 'lightblue',
+        },
+        labelCfg: {
+          autoRotate: true,
+        },
+      },
+    });
+
+    graph.data(data);
+
+    // Add tooltips to nodes and edges
+    graph.on('node:mouseenter', (e) => {
+      const model = e.item.getModel();
+      const div = document.createElement('div');
+      div.className = 'custom-tooltip';
+      div.innerHTML = model.tooltip;
+      div.style.position = 'absolute';
+      div.style.left = e.clientX + 'px';
+      div.style.top = e.clientY + 'px';
+      document.body.appendChild(div);
+    });
+
+    graph.on('node:mouseleave', () => {
+      const tooltips = document.getElementsByClassName('custom-tooltip');
+      for (const tooltip of tooltips) {
+        tooltip.remove();
+      }
+    });
+
+    graph.render();
+
+    // Clean up the graph when the component is unmounted
+    return () => {
+      graph.destroy();
+    };
+  }, []);
+
+  return <div id="money-flow-chart" style={{ width: '800px', height: '600px' }} />;
+}
+
+export default MoneyFlowGraph;
