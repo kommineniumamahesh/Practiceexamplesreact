@@ -24,3 +24,37 @@ const MyComponent = () => {
 
   return <div>{data ? JSON.stringify(data) : "Loading..."}</div>;
 };
+
+import React, { useState } from 'react';
+
+const FileInputComponent = () => {
+  const [fileContent, setFileContent] = useState('');
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const content = e.target.result;
+        setFileContent(content);
+      };
+
+      reader.readAsText(file);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      <div>
+        <strong>File Content:</strong>
+        <pre>{fileContent}</pre>
+      </div>
+    </div>
+  );
+};
+
+export default FileInputComponent;
+
